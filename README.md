@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/abuhtoyarov/civicrm.svg?branch=master)](https://travis-ci.org/abuhtoyarov/civicrm)
+
 ## Installation
 
 * $ gem install civicrm
