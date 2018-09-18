@@ -32,6 +32,8 @@ module CiviCrm
 
         body, code = response.body, response.code
 
+        binding.pry
+        
         CiviCrm::XML.parse(body).tap do |results|
           Array(results).each do |res|
             raise Error, res["error_message"] if res["is_error"] == "1"
