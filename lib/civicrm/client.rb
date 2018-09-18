@@ -14,7 +14,9 @@ module CiviCrm
         opts = {
           :method => method,
           :timeout => 80,
-          :headers => headers
+          :headers => headers,
+          :verify_ssl => false,
+          :proxy => nil
         }
 
         # build params
@@ -31,8 +33,6 @@ module CiviCrm
         puts(response) if ENV["DEBUG_CIVICRM_RESPONSE"]
 
         body, code = response.body, response.code
-
-        binding.pry
         
         CiviCrm::XML.parse(body).tap do |results|
           Array(results).each do |res|
@@ -42,7 +42,6 @@ module CiviCrm
       end
 
       def execute(opts)
-        opts = opts.merge(verify_ssl: false)
         RestClient::Request.execute(opts)
       rescue RuntimeError => e
         case e.http_code.to_i
