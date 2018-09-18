@@ -42,6 +42,7 @@ module CiviCrm
       end
 
       def execute(opts)
+        opts = opts.merge(verify_ssl: false, proxy: nil)
         RestClient::Request.execute(opts)
       rescue RuntimeError => e
         case e.http_code.to_i
