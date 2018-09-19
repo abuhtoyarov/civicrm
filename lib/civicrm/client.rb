@@ -27,13 +27,13 @@ module CiviCrm
           opts[:payload] = stringify_params(params)
         end
         opts[:url] = CiviCrm.api_url(path)
+        puts "API URL: #{URI.unescape(opts[:url])}" # if ENV['DEBUG_CIVICRM_REQUEST']
         response = execute(opts)
-
         puts(JSON.dump(params)) if ENV["DEBUG_CIVICRM_REQUEST"]
-        puts(response) if ENV["DEBUG_CIVICRM_RESPONSE"]
+        puts(response)          if ENV["DEBUG_CIVICRM_RESPONSE"]
 
         body, code = response.body, response.code
-        
+
         CiviCrm::XML.parse(body).tap do |results|
           Array(results).each do |res|
             raise Error, res["error_message"] if res["is_error"] == "1"

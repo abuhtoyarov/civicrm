@@ -32,8 +32,9 @@ module CiviCrm
   @@api_base = 'https://www.example.org/path/to/civi/codebase'
   @@api_version = 'v3'
   @@user_authenticated = false
+  @@per_page = 100
 
-  mattr_accessor :api_key, :api_base, :api_version, :site_key
+  mattr_accessor :api_key, :api_base, :api_version, :site_key, :per_page
 
   def self.api_url(path = '')
     base = "#{api_base}/civicrm/extern/rest.php?#{path}"
@@ -49,5 +50,9 @@ module CiviCrm
 
   def self.api_key=(key)
     @@api_key = key
+  end
+
+  def self.per_page=(per_page_count)
+    @@per_page = per_page_count
   end
 end
