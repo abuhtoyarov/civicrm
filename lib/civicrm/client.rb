@@ -1,3 +1,5 @@
+require 'json'
+
 module CiviCrm
   class Client
     class << self
@@ -14,9 +16,7 @@ module CiviCrm
         opts = {
           :method => method,
           :timeout => 80,
-          :headers => headers,
-          :verify_ssl => false,
-          :proxy => nil
+          :headers => headers
         }
 
         # build params
@@ -27,22 +27,24 @@ module CiviCrm
           opts[:payload] = stringify_params(params)
         end
         opts[:url] = CiviCrm.api_url(path)
-        puts "API URL: #{URI.unescape(opts[:url])}" # if ENV['DEBUG_CIVICRM_REQUEST']
         response = execute(opts)
+
         puts(JSON.dump(params)) if ENV["DEBUG_CIVICRM_REQUEST"]
-        puts(response)          if ENV["DEBUG_CIVICRM_RESPONSE"]
+        puts(response) if ENV["DEBUG_CIVICRM_RESPONSE"]
 
         body, code = response.body, response.code
-
-        CiviCrm::XML.parse(body).tap do |results|
-          Array(results).each do |res|
-            raise Error, res["error_message"] if res["is_error"] == "1"
+        if body.strip[/\A<\?xml/] == nil
+          self.parse_json(body)
+        else
+          CiviCrm::XML.parse(body).tap do |results|
+            Array(results).each do |res|
+              raise Error, res["error_message"] if res["is_error"] == "1"
+            end
           end
         end
       end
 
       def execute(opts)
-        opts = opts.merge(verify_ssl: OpenSSL::SSL::VERIFY_NONE, proxy: nil)
         RestClient::Request.execute(opts)
       rescue RuntimeError => e
         case e.http_code.to_i
@@ -76,6 +78,12 @@ module CiviCrm
 
       def stringify_params(params)
         flatten_params(params).collect{|key, value| "#{key}=#{uri_escape(value)}"}.join('&')
+      end
+
+      def parse_json(source)
+        JSON.parse(source)['values'].map do |key, value|
+          value
+        end 
       end
     end
   end

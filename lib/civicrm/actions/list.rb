@@ -6,7 +6,7 @@ module CiviCrm
       module ClassMethods
         def all(params = {})
           params.merge!('entity' => entity_class_name, 'action' => 'get')
-          params = handle_pagination(params)
+          params = self.handle_pagination(params)
           response = CiviCrm::Client.request(:get, params)
           Resource.build_from(response, params)
         end
@@ -43,11 +43,13 @@ module CiviCrm
           if params.key?(:page) || params.key?('page')
             page_number = params.dig(:page) || params.dig('page')
             offset = (page_number - 1) * CiviCrm.per_page
-            params['options'] = {
-              limit:  CiviCrm.per_page,
-              offset: offset
-            }
-            params.except(:page, 'page')
+            params[:json] = {
+              :option => {
+                :limit => CiviCrm.per_page,
+                :offset => offset
+              }
+            }.to_json
+            params = params.except(:page)
           end
           params
         end
