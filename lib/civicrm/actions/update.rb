@@ -14,8 +14,8 @@ module CiviCrm
 
       def save
         @previously_changed = changes
-        @changed_attributes.clear
-        update()
+        @changed_attributes = {}
+        update
       end
     end
   end
